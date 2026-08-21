@@ -331,61 +331,52 @@
 
 
 <script>
+const WORKER_URL = "https://shipping-tracker-api.andylowkw.workers.dev";
 
 const trackButton = document.getElementById("track");
 
-trackButton.addEventListener("click", function () {
-
-  const carrier =
-    document.getElementById("carrier").value;
-
-  const container =
-    document.getElementById("container").value
-      .trim()
-      .toUpperCase();
+trackButton.addEventListener("click", async function () {
+  const carrier = document.getElementById("carrier").value;
+  const container = document.getElementById("container").value.trim().toUpperCase();
 
   if (!container) {
     alert("Please enter a container number.");
     return;
   }
 
-  const carrierNames = {
-    "oocl": "OOCL",
-    "cosco": "COSCO Shipping",
-    "hmm": "HMM",
-    "maersk": "Maersk",
-    "msc": "MSC",
-    "cma-cgm": "CMA CGM",
-    "evergreen": "Evergreen",
-    "one": "ONE",
-    "yang-ming": "Yang Ming",
-    "zim": "ZIM"
-  };
+  trackButton.textContent = "Tracking...";
+  trackButton.disabled = true;
 
-  document.getElementById("container-result")
-    .textContent = container;
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        carrier: carrier,
+        trackingNumber: container
+      })
+    });
 
-  document.getElementById("carrier-result")
-    .textContent = carrierNames[carrier];
+    const data = await response.json();
 
-  document.getElementById("status")
-    .textContent = "IN TRANSIT";
+    document.getElementById("container-result").textContent = data.trackingNumber;
+    document.getElementById("carrier-result").textContent = data.carrier;
+    document.getElementById("status").textContent = data.statusLabel;
+    document.getElementById("location").textContent = data.message;
+    document.getElementById("vessel").textContent = "Backend connected";
+    document.getElementById("voyage").textContent = "—";
+    document.getElementById("eta").textContent = "—";
 
-  document.getElementById("location")
-    .textContent = "Singapore Strait";
-
-  document.getElementById("vessel")
-    .textContent = "Waiting for live data";
-
-  document.getElementById("voyage")
-    .textContent = "—";
-
-  document.getElementById("eta")
-    .textContent = "—";
-
+  } catch (error) {
+    alert("Unable to contact the backend.");
+    console.error(error);
+  } finally {
+    trackButton.textContent = "Track Shipment";
+    trackButton.disabled = false;
+  }
 });
-
 </script>
-
 </body>
 </html>
