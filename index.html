@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipping Tracker</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      color: #687386;
+      margin-top: 6px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e7ef;
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .search {
+      display: grid;
+      grid-template-columns: 220px 1fr 150px;
+      gap: 12px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    select,
+    input {
+      width: 100%;
+      height: 46px;
+      border: 1px solid #d8dee8;
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 15px;
+      background: white;
+    }
+
+    button {
+      height: 46px;
+      border: 0;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status {
+      background: #d1fae5;
+      color: #047857;
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .detail {
+      border: 1px solid #e2e7ef;
+      border-radius: 12px;
+      padding: 15px;
+    }
+
+    .detail small {
+      color: #687386;
+    }
+
+    .detail strong {
+      display: block;
+      margin-top: 5px;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .event {
+      border: 1px solid #e2e7ef;
+      border-radius: 12px;
+      padding: 15px;
+      min-height: 110px;
+    }
+
+    .event.current {
+      border: 2px solid #2563eb;
+    }
+
+    .event-icon {
+      font-size: 13px;
+      color: #2563eb;
+    }
+
+    .event strong {
+      display: block;
+      margin: 8px 0;
+    }
+
+    .event small {
+      color: #687386;
+    }
+
+    .empty {
+      text-align: center;
+      color: #687386;
+      padding: 30px;
+    }
+
+    @media (max-width: 800px) {
+      .search {
+        grid-template-columns: 1fr;
+      }
+
+      .details,
+      .timeline {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .details,
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>Shipping Tracker</h1>
+
+  <div class="subtitle">
+    Track your ocean shipments across major shipping lines.
+  </div>
+
+  <div class="card">
+
+    <div class="search">
+
+      <div>
+        <label>Shipping Line</label>
+
+        <select id="carrier">
+          <option value="oocl">OOCL</option>
+          <option value="cosco">COSCO Shipping</option>
+          <option value="hmm">HMM / Hyundai Merchant Marine</option>
+          <option value="maersk">Maersk</option>
+          <option value="msc">MSC</option>
+          <option value="cma-cgm">CMA CGM</option>
+          <option value="evergreen">Evergreen</option>
+          <option value="one">ONE</option>
+          <option value="yang-ming">Yang Ming</option>
+          <option value="zim">ZIM</option>
+        </select>
+
+      </div>
+
+      <div>
+
+        <label>Container Number</label>
+
+        <input
+          id="container"
+          placeholder="e.g. OOLU1234567"
+          autocomplete="off"
+        >
+
+      </div>
+
+      <button id="track">
+        Track Shipment
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="result-header">
+
+      <div>
+        <h2 id="container-result">No shipment selected</h2>
+        <div class="subtitle" id="carrier-result">
+          Enter a container number above
+        </div>
+      </div>
+
+      <div class="status" id="status">
+        —
+      </div>
+
+    </div>
+
+
+    <div class="details">
+
+      <div class="detail">
+        <small>Current Location</small>
+        <strong id="location">—</strong>
+      </div>
+
+      <div class="detail">
+        <small>Vessel</small>
+        <strong id="vessel">—</strong>
+      </div>
+
+      <div class="detail">
+        <small>Voyage</small>
+        <strong id="voyage">—</strong>
+      </div>
+
+      <div class="detail">
+        <small>ETA</small>
+        <strong id="eta">—</strong>
+      </div>
+
+    </div>
+
+
+    <h3 style="margin-top:30px;">
+      Shipment Timeline
+    </h3>
+
+    <div class="timeline">
+
+      <div class="event">
+        <div class="event-icon">✓ Complete</div>
+        <strong>Gate In</strong>
+        <small>Shanghai</small>
+      </div>
+
+      <div class="event">
+        <div class="event-icon">✓ Complete</div>
+        <strong>Loaded</strong>
+        <small>Shanghai</small>
+      </div>
+
+      <div class="event">
+        <div class="event-icon">✓ Complete</div>
+        <strong>Departed</strong>
+        <small>Shanghai</small>
+      </div>
+
+      <div class="event current">
+        <div class="event-icon">● Current</div>
+        <strong>In Transit</strong>
+        <small>At sea</small>
+      </div>
+
+      <div class="event">
+        <div class="event-icon">○ Upcoming</div>
+        <strong>Discharged</strong>
+        <small>Singapore</small>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>Recent Shipments</h3>
+
+    <div id="history">
+
+      <div class="empty">
+        No shipments tracked yet.
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const trackButton = document.getElementById("track");
+
+trackButton.addEventListener("click", function () {
+
+  const carrier =
+    document.getElementById("carrier").value;
+
+  const container =
+    document.getElementById("container").value
+      .trim()
+      .toUpperCase();
+
+  if (!container) {
+    alert("Please enter a container number.");
+    return;
+  }
+
+  const carrierNames = {
+    "oocl": "OOCL",
+    "cosco": "COSCO Shipping",
+    "hmm": "HMM",
+    "maersk": "Maersk",
+    "msc": "MSC",
+    "cma-cgm": "CMA CGM",
+    "evergreen": "Evergreen",
+    "one": "ONE",
+    "yang-ming": "Yang Ming",
+    "zim": "ZIM"
+  };
+
+  document.getElementById("container-result")
+    .textContent = container;
+
+  document.getElementById("carrier-result")
+    .textContent = carrierNames[carrier];
+
+  document.getElementById("status")
+    .textContent = "IN TRANSIT";
+
+  document.getElementById("location")
+    .textContent = "Singapore Strait";
+
+  document.getElementById("vessel")
+    .textContent = "Waiting for live data";
+
+  document.getElementById("voyage")
+    .textContent = "—";
+
+  document.getElementById("eta")
+    .textContent = "—";
+
+});
+
+</script>
+
+</body>
+</html>
